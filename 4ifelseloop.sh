@@ -2,7 +2,7 @@
 a=20
 b=20
   
-if [ $a == $b ]
+if [ $a = $b ]
 then
     # If they are equal then print this
     echo "a is equal to b"
