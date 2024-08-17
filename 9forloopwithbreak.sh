@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 #Start of for loop
 
@@ -12,5 +12,5 @@ break
 fi
 
 # Print the value
-echo “Iteration no $a”
+echo "Iteration no $a"
 done
