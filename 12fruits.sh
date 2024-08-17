@@ -1,10 +1,8 @@
-#/bin/bash
+#!/bin/bash
+fruits=( banana apple orange )
 
-FRUITS=”apple banana grapes”
-
-# the for loop continues until it reads all the values from the COLORS
-
-for fruit in $FRUITS
+max=2
+for (( i=0; i <= "$max"; ++i ))
 do
-echo “fruit: $fruit”
-done
+    echo "${fruits[$i]}"
+done 
