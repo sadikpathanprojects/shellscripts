@@ -1,7 +1,7 @@
 #!/bin/sh
 a=15
 b=20
-if [ $a == $b ]
+if [ $a = $b ]
 then
    echo "a is equal to b"
 elif [ $a -gt $b ]
