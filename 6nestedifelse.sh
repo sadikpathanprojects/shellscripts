@@ -1,21 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 
-a=10
-b=20
+a=20
+b=15
 c=5
 
-if [ $a -lt  $b ]
-then
-if [ $a -lt $c ]
-  then
-  echo 'a is less than b and c'
-      else 
-  echo 'a is less than b and greater than c'
+if [ $a -lt $b ]; then
+if [ $a -lt $c ]; then
+echo 'a is less than b'
+else
+echo 'a is less than b and greater than c'
 fi
-
-elif [ $a -gt $b ];then 
-   echo 'a is greater than b' 
-else 
-    echo 'a and b are equal'
+elif [ $a -gt $b ];then
+echo 'a is greater than b'
+else
+echo 'a and b are equal'
 fi
-
