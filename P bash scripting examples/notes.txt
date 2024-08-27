@@ -1,0 +1,7 @@
+
+# $? gives the status of the previous command if that was successful or not.
+# $#  gives you the number of arguments passed to the function or script
+# $@ gives you the list of arguments.
+# basename : gives you the filename and strips the directory name
+# dirname : strips the filename and gives you the directory path
+# realpath : gives you full path for a file.
