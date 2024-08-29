@@ -1,0 +1,41 @@
+---
+- name: Install Apache Web Server on remote servers
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Apache (httpd) package
+      ansible.builtin.package:
+        name: 
+          - httpd    # For RedHat/CentOS/Oracle Linux
+          - apache2  # For Debian/Ubuntu
+        state: present
+
+    - name: Ensure Apache is started and enabled at boot
+      ansible.builtin.service:
+        name: "{{ apache_service_name }}"
+        state: started
+        enabled: yes
+
+    - name: Open HTTP port in firewall (RedHat/CentOS/Oracle Linux)
+      ansible.builtin.firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+      when: ansible_os_family == "RedHat"
+
+    - name: Open HTTP port in UFW (Debian/Ubuntu)
+      ansible.builtin.ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+      when: ansible_os_family == "Debian"
+
+    - name: Verify Apache is running
+      ansible.builtin.shell:
+        cmd: "curl -I http://localhost"
+      register: apache_status
+
+    - name: Print Apache status
+      ansible.builtin.debug:
+        msg: "Apache installed and running successfully on {{ inventory_hostname }}"
+      when: "'200 OK' in apache_status.stdout"
