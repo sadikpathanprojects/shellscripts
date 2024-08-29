@@ -1,0 +1,28 @@
+
+---
+- name: Share file via SCP
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensure destination directory exists on the remote server
+      ansible.builtin.file:
+        path: "{{ remote_directory }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy file to remote server via SCP
+      ansible.builtin.copy:
+        src: "{{ local_file_path }}"
+        dest: "{{ remote_directory }}/{{ local_file_path | basename }}"
+        mode: '0644'
+        remote_src: no
+
+    - name: Verify file exists on remote server
+      ansible.builtin.stat:
+        path: "{{ remote_directory }}/{{ local_file_path | basename }}"
+      register: file_stat
+
+      - name: Print the file status
+      ansible.builtin.debug:
+        msg: "File was copied to remote server successfully"
+      when: file_stat.stat.exists
