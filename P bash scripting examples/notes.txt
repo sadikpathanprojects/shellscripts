@@ -5,3 +5,6 @@
 # basename : gives you the filename and strips the directory name
 # dirname : strips the filename and gives you the directory path
 # realpath : gives you full path for a file.
+# random  : random number between 0 and 32767 is generated
+# uid : user id of the user logged in .
+
