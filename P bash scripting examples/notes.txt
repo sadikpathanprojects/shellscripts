@@ -1,10 +1,31 @@
 
 # $? gives the status of the previous command if that was successful or not.
 # $#  gives you the number of arguments passed to the function or script
+# $*  consider all the arguments as single entry.expands to all parameters that were passed to that shell script
+#  $0 : name of the shell script
 # $@ gives you the list of arguments.
+#  $$ : gives the process id of current shell
 # basename : gives you the filename and strips the directory name
 # dirname : strips the filename and gives you the directory path
 # realpath : gives you full path for a file.
 # random  : random number between 0 and 32767 is generated
 # uid : user id of the user logged in .
-
+# echo $0 : display current shell
+#  chsh   : change the shell
+#!/bin/bash : tells the linux os which interpreter to use to parse the rest of the file
+#  = : tests if the 2 strings are equal or not
+# HOST=$(hostname) : take the output of the"hostname" command and store it in the variable named "HOST".
+# esac : used to end the case statement
+0: stdin
+1: stdout
+2: stderr
+1>  :redirect the stdout
+2>  : redirect the stderr
+#  ./error.sh 1> capture.txt 2> error.txt  : direct stdout to a file called capture.txt and stderr to a file called error.txt.
+#  ./error.sh > capture.txt 2>&1  : sends both stdout and stderr to the same file.
+# [ ! -d /directory] : checks if the directory exists or not
+# set -x  : enable debugging
+#  cat /etc/shells  : shows the total shells available in the system.
+# sleep  : cause the delay between 2 executions
+# exit : stops the script
+# logger : maintain the logs for your script
