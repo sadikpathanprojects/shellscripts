@@ -1,8 +1,7 @@
 #!/bin/bash
 
+# Generate a random number between 1 and 6
+random_number=$(( (RANDOM % 6) + 1 ))
 
-
-#generating the random number between 1 to 6
-
-No=(( $RANDOM%6+1 ))
-echo "number is $No"
+# Print the random number
+echo "Random number between 1 and 6: $random_number"
