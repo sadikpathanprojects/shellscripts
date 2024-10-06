@@ -1,3 +1,44 @@
+
+
+
+Summary of Playbook Steps:
+Gather Installed Packages from Reference Server:
+
+Task: Execute a command on the reference server to retrieve a list of installed RPM packages.
+Result: The list is stored in a variable called reference_package_list.
+Save Package List to Local File:
+
+Task: Copy the package list from the reference server and save it to a file (/tmp/reference_installed_packages.txt) on the Ansible control node.
+Action: This is done using the local_action and delegate_to: localhost parameters to save the output locally.
+Apply Patches on Target Servers:
+
+Task: Copy the previously saved package list from the Ansible control node to the target server.
+Gather Installed Packages from Target Server:
+
+Task: Execute a command on the target server to retrieve its list of installed RPM packages.
+Result: The list is stored in a variable called target_package_list.
+Save Target Package List to Temporary File:
+
+Task: Copy the target server’s package list to a temporary file (/tmp/target_installed_packages.txt) on the target server.
+Sort the Reference Package List:
+
+Task: Sort the reference package list and save the sorted output to a new file (/tmp/reference_installed_packages_sorted.txt).
+Sort the Target Package List:
+
+Task: Sort the target package list and save the sorted output to a new file (/tmp/target_installed_packages_sorted.txt).
+Compare Package Lists:
+
+Task: Use the comm command to compare the sorted package lists and identify which packages are missing from the target server. The results are saved in /tmp/packages_to_update.txt.
+Check for Missing Packages:
+
+Task: Verify if the file containing the list of packages to update exists and has data.
+Result: Store this information in a variable called package_file.
+Install Missing Packages on Target Server:
+
+Task: If there are packages to install (i.e., the file has data), use the xargs command with yum to install the missing packages listed in /tmp/packages_to_update.txt.
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ---
 - name: Gather installed packages from the client1 (reference server) to ansible server
   hosts: reference_server
