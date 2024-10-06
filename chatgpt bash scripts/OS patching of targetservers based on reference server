@@ -1,0 +1,52 @@
+---
+- name: Gather installed packages from the client1 (reference server) to ansible server
+  hosts: reference_server
+  tasks:
+    - name: Gather the list of installed packages on client1
+      command: "rpm -qa --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n'"
+      register: reference_package_list
+
+    - name: Save the package list to a file on the ansible server by name reference_installed_packages.txt
+      local_action:
+        module: copy
+        content: "{{ reference_package_list.stdout }}"
+        dest: "/tmp/reference_installed_packages.txt"
+      delegate_to: localhost
+
+- name: Apply patches on target servers based on the reference server's package list
+  hosts: target_servers
+  gather_facts: no
+  tasks:
+    - name: Copy the client1  package list to the client2 server
+      copy:
+        src: /tmp/reference_installed_packages.txt
+        dest: /tmp/reference_installed_packages.txt
+
+    - name: Gather the list of installed packages on the client2 target server
+      command: "rpm -qa --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n'"
+      register: target_package_list
+
+    - name: Save the target package list to a temporary file
+      copy:
+        content: "{{ target_package_list.stdout }}"
+        dest: /tmp/target_installed_packages.txt
+
+    - name: Sort the reference package list
+      shell: "sort /tmp/reference_installed_packages.txt > /tmp/reference_installed_packages_sorted.txt"
+
+    - name: Sort the target package list
+      shell: "sort /tmp/target_installed_packages.txt > /tmp/target_installed_packages_sorted.txt"
+
+    - name: Compare package lists and identify packages to install
+      shell: "comm -13  /tmp/target_installed_packages_sorted.txt /tmp/reference_installed_packages_sorted.txt > /tmp/packages_to_update.txt"
+      register: packages_to_update
+
+    - name: Check if /tmp/packages_to_update.txt exists and has data
+      stat:
+        path: /tmp/packages_to_update.txt
+      register: package_file
+
+    - name: Install missing packages on the target server
+      shell: "xargs yum -y install < /tmp/packages_to_update.txt"
+      when: package_file.stat.size > 0
+
