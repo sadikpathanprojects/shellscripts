@@ -1,0 +1,92 @@
+
+
+
+Summary of Playbook Steps:
+Gather Installed Packages from Reference Server:
+
+Task: Execute a command on the reference server to retrieve a list of installed RPM packages.
+Result: The list is stored in a variable called reference_package_list.
+Save Package List to Local File:
+
+Task: Copy the package list from the reference server and save it to a file (/tmp/reference_installed_packages.txt) on the Ansible control node.
+Action: This is done using the local_action and delegate_to: localhost parameters to save the output locally.
+Apply Patches on Target Servers:
+
+Task: Copy the previously saved package list from the Ansible control node to the target server.
+Gather Installed Packages from Target Server:
+
+Task: Execute a command on the target server to retrieve its list of installed RPM packages.
+Result: The list is stored in a variable called target_package_list.
+Save Target Package List to Temporary File:
+
+Task: Copy the target server’s package list to a temporary file (/tmp/target_installed_packages.txt) on the target server.
+Sort the Reference Package List:
+
+Task: Sort the reference package list and save the sorted output to a new file (/tmp/reference_installed_packages_sorted.txt).
+Sort the Target Package List:
+
+Task: Sort the target package list and save the sorted output to a new file (/tmp/target_installed_packages_sorted.txt).
+Compare Package Lists:
+
+Task: Use the comm command to compare the sorted package lists and identify which packages are missing from the target server. The results are saved in /tmp/packages_to_update.txt.
+Check for Missing Packages:
+
+Task: Verify if the file containing the list of packages to update exists and has data.
+Result: Store this information in a variable called package_file.
+Install Missing Packages on Target Server:
+
+Task: If there are packages to install (i.e., the file has data), use the xargs command with yum to install the missing packages listed in /tmp/packages_to_update.txt.
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+---
+- name: Gather installed packages from the client1 (reference server) to ansible server
+  hosts: reference_server
+  tasks:
+    - name: Gather the list of installed packages on client1
+      command: "rpm -qa --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n'"
+      register: reference_package_list
+
+    - name: Save the package list to a file on the ansible server by name reference_installed_packages.txt
+      local_action:
+        module: copy
+        content: "{{ reference_package_list.stdout }}"
+        dest: "/tmp/reference_installed_packages.txt"
+      delegate_to: localhost
+
+- name: Apply patches on target servers based on the reference server's package list
+  hosts: target_servers
+  gather_facts: no
+  tasks:
+    - name: Copy the client1  package list to the client2 server
+      copy:
+        src: /tmp/reference_installed_packages.txt
+        dest: /tmp/reference_installed_packages.txt
+
+    - name: Gather the list of installed packages on the client2 target server
+      command: "rpm -qa --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n'"
+      register: target_package_list
+
+    - name: Save the target package list to a temporary file
+      copy:
+        content: "{{ target_package_list.stdout }}"
+        dest: /tmp/target_installed_packages.txt
+
+    - name: Sort the reference package list
+      shell: "sort /tmp/reference_installed_packages.txt > /tmp/reference_installed_packages_sorted.txt"
+
+    - name: Sort the target package list
+      shell: "sort /tmp/target_installed_packages.txt > /tmp/target_installed_packages_sorted.txt"
+
+    - name: Compare package lists and identify packages to install
+      shell: "comm -13  /tmp/target_installed_packages_sorted.txt /tmp/reference_installed_packages_sorted.txt > /tmp/packages_to_update.txt"
+      register: packages_to_update
+
+    - name: Check if /tmp/packages_to_update.txt exists and has data
+      stat:
+        path: /tmp/packages_to_update.txt
+      register: package_file
+
+    - name: Install missing packages on the target server
+      shell: "xargs yum -y install < /tmp/packages_to_update.txt"
+      when: package_file.stat.size > 0
