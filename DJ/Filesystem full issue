@@ -1,0 +1,11 @@
+NOTE : In future, most VM's won't have dedicated application filesystems.
+ If "/" is being filled, you could check the files and shall increase the size as and when required.
+ For application logs, Please have them contacted to get it cleared or rotated regularly. 
+Whereas for a physical machine, we should not be flexible in increasing the root filesystems. Act accordingly.
+
+to check the filesystem type and size and how much they are filled:
+df -h
+
+to find out the top 20 files by size in the Filesystem:
+/usr/local/scripts/os_fs_housekeeping.pl -l -fs <FS>
+
